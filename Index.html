@@ -19,7 +19,7 @@
             z-index: 100;
         }
         .brand { display: flex; align-items: center; gap: 10px; }
-        .logo-small { width: 45px; height: 45px; border-radius: 50%; border: 1px solid var(--primary); object-fit: cover; }
+        .logo-img { width: 45px; height: 45px; border-radius: 50%; border: 1px solid var(--primary); object-fit: cover; }
         .logo-text { font-weight: bold; color: var(--primary); font-size: 20px; text-transform: uppercase; }
         
         .download-nav-btn {
@@ -50,7 +50,6 @@
         .send-btn { background: var(--primary); color: white; }
         .mic-btn { background: #2a2a2e; color: var(--primary); border: 1px solid #444; }
         .active-mic { background: var(--primary); color: white; animation: pulse 1.5s infinite; }
-        #file-input { display: none; }
 
         @keyframes pulse { 0% { transform: scale(1); } 50% { transform: scale(1.1); } 100% { transform: scale(1); } }
     </style>
@@ -62,21 +61,18 @@
             <img src="https://raw.githubusercontent.com/khushwinders701-maker/Kh90-ai/main/Logo.png" class="logo-small" alt="KH90 Logo">
             <div class="logo-text">kh90 ai</div>
         </div>
-        <a href="https://raw.githubusercontent.com/khushwinders701-maker/Kh90-ai/main/Logo.png" download="kh90_ai.apk" class="download-nav-btn">📥 Download APK</a>
+        <a href="https://drive.google.com/file/d/1Ss1bFFK8QuJWvo_du5fZC_QG9FMDiR14/view?usp=sharing" target="_blank" class="download-nav-btn">📥 Download APK</a>
     </header>
 
     <div id="chat-window">
-        <div class="msg ai">ਸਤਿ ਸ਼੍ਰੀ ਅਕਾਲ! ਮੈਂ <b>KH90 AI</b> ਹਾਂ। ਤੁਸੀਂ ਮੇਰੇ ਨਾਲ ਚੈਟ ਕਰ ਸਕਦੇ ਹੋ ਜਾਂ ਉੱਪਰ ਦਿੱਤੇ ਬਟਨ ਤੋਂ ਐਪ ਡਾਊਨਲੋਡ ਕਰ ਸਕਦੇ ਹੋ।</div>
+        <div class="msg ai">ਸਤਿ ਸ਼੍ਰੀ ਅਕਾਲ! ਮੈਂ <b>KH90 AI Pro</b> ਹਾਂ। ਤੁਸੀਂ ਮੇਰੇ ਨਾਲ ਗੱਲ ਕਰ ਸਕਦੇ ਹੋ ਜਾਂ ਉੱਪਰ ਦਿੱਤੇ ਬਟਨ ਤੋਂ ਐਪ ਡਾਊਨਲੋਡ ਕਰ ਸਕਦੇ ਹੋ।</div>
     </div>
 
     <div class="input-area">
         <button class="circle-btn mic-btn" id="micBtn" onclick="startListening()">🎤</button>
-        <input type="text" id="userInput" placeholder="ਸਵਾਲ ਪੁੱਛੋ ਜਾਂ 'Open YouTube' ਬੋਲੋ..." onkeypress="if(event.key==='Enter') sendChat()">
+        <input type="text" id="userInput" placeholder="ਕੁਝ ਪੁੱਛੋ ਜਾਂ 'Open YouTube' ਬੋਲੋ..." onkeypress="if(event.key==='Enter') sendChat()">
         <button class="circle-btn send-btn" onclick="sendChat()">➔</button>
-        <button class="circle-btn" style="background: #444; color: white;" onclick="document.getElementById('file-input').click()">📁</button>
     </div>
-
-    <input type="file" id="file-input" onchange="openSelectedFile(event)">
 
     <script>
         const API_KEY = "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";
@@ -103,9 +99,6 @@
             sendChat();
         };
 
-        recognition.onerror = () => micBtn.classList.remove('active-mic');
-        recognition.onend = () => micBtn.classList.remove('active-mic');
-
         async function sendChat() {
             const text = userInput.value.trim();
             if (!text) return;
@@ -114,19 +107,14 @@
             const lowerText = text.toLowerCase();
             userInput.value = "";
 
-            // 1. ਐਕਸਪਰਟ ਕਮਾਂਡਸ
+            // Expert App Opening Logic
             if (lowerText.includes("youtube") || lowerText.includes("ਯੂਟਿਊਬ")) {
                 addMessage("YouTube ਖੋਲ੍ਹ ਰਿਹਾ ਹਾਂ...", 'ai');
                 window.location.href = "intent://www.youtube.com/#Intent;scheme=http;package=com.google.android.youtube;end";
                 return;
             } 
-            if (lowerText.includes("whatsapp") || lowerText.includes("ਵਟਸਐਪ")) {
-                addMessage("WhatsApp ਖੋਲ੍ਹ ਰਿਹਾ ਹਾਂ...", 'ai');
-                window.location.href = "intent://#Intent;scheme=whatsapp;package=com.whatsapp;end";
-                return;
-            }
 
-            // 2. Groq AI Online
+            // AI Response from Groq
             try {
                 const response = await fetch("https://api.groq.com/openai/v1/chat/completions", {
                     method: "POST",
@@ -140,15 +128,6 @@
                 addMessage(data.choices[0].message.content, 'ai');
             } catch (e) {
                 addMessage("Error: ਇੰਟਰਨੈੱਟ ਕਨੈਕਸ਼ਨ ਚੈੱਕ ਕਰੋ।", 'ai');
-            }
-        }
-
-        function openSelectedFile(event) {
-            const file = event.target.files[0];
-            if (file) {
-                const fileURL = URL.createObjectURL(file);
-                addMessage("ਫਾਈਲ ਖੋਲ੍ਹ ਦਿੱਤੀ ਗਈ ਹੈ: " + file.name, 'ai');
-                window.open(fileURL, "_blank");
             }
         }
 
